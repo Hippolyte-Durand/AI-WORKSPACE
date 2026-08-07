@@ -52,9 +52,9 @@ fi
 KIMI_HOME="${KIMI_CODE_HOME:-$HOME/.kimi-code}"
 mkdir -p "$KIMI_HOME"
 ln -sfn "$WS/skills" "$KIMI_HOME/skills"
-# Config agent/TUI — même format, liens directs.
+# Config agent/TUI + instructions globales — même format, liens directs.
 # (les tokens OAuth vivent dans $KIMI_HOME/oauth/, hors repo)
-for f in config.toml tui.toml; do
+for f in config.toml tui.toml AGENTS.md; do
   [ -e "$WS/config/kimi/$f" ] && ln -sfn "$WS/config/kimi/$f" "$KIMI_HOME/$f"
 done
 # MCP : source canonique unique (config/mcp/servers.json), lien direct.
@@ -80,5 +80,8 @@ ln -sfn "$WS/config/mcp/servers.json" "$HOME/.gemini/config/mcp_config.json"
 # (son user scope serait ~/.gemini/skills, son hook RTK via config/gemini/hooks.json
 #  — retirés le 2026-08-07, récupérables dans l'historique git si besoin)
 link_skills_into "$HOME/.gemini/config/skills"
+# Règles globales Antigravity = ~/.gemini/GEMINI.md (lu par les 3 flavours).
+# Lien direct vers la charte usine (cycle dev par défaut).
+ln -sfn "$WS/USINE.md" "$HOME/.gemini/GEMINI.md"
 
 echo "[ai-workspace] symlinks en place. Redémarrer les CLIs pour prise en compte."
