@@ -5,12 +5,10 @@ homepage: https://github.com/DietrichGebert/ponytail
 license: MIT
 ---
 
-ponytail-review, repo-wide. Scan the whole tree instead of a diff. Rank
+Over-engineering review (taxonomie de l'axe 6 de `code-review-and-quality`), repo-wide. Scan the whole tree instead of a diff. Rank
 findings biggest cut first.
 
 ## Tags
-
-Same as ponytail-review:
 
 - `delete:` dead code, unused flexibility, speculative feature. Replacement: nothing.
 - `stdlib:` hand-rolled thing the standard library ships. Name the function.
