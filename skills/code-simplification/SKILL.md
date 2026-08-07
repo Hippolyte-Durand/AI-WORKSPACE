@@ -43,6 +43,8 @@ The ladder runs *after* you understand the problem, never instead of it. Deletio
 
 **Mark deliberate shortcuts** with a `ponytail:` comment naming the ceiling and the upgrade path — `# ponytail: global lock, per-account locks if throughput matters` — so a shortcut reads as intent, not ignorance.
 
+**Debt ledger** — periodically harvest those markers so a deferral can't quietly become permanent: `grep -rnE '(#|//) ?ponytail:' .` (skip `node_modules`/`.git`/build). One row per hit: `<file>:<line> — <what was simplified>. ceiling: <limit>. upgrade: <trigger>.` Flag any marker naming **no** upgrade trigger as `no-trigger` (those are the ones that rot). Persist to `PONYTAIL-DEBT.md` if you want it tracked over time.
+
 **Never lazy about understanding**: the ladder shortens the solution, never the reading. For non-trivial logic (branch, loop, parser, money/security path), leave ONE runnable check behind — an `assert`-based `demo()`/`__main__` or one small `test_*`.
 
 ## The Five Principles

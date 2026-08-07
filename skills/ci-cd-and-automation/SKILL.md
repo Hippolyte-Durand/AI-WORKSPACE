@@ -282,6 +282,27 @@ CI should never have production secrets. Use separate secrets for CI testing.
 
 ## Automation Beyond CI
 
+### Pre-Commit Hooks (local, shift-left)
+
+The earliest quality gate: fast checks before the commit lands. Setup with **Husky + lint-staged**:
+
+1. Detect package manager (`package-lock.json`→npm, `pnpm-lock.yaml`→pnpm, `yarn.lock`→yarn, `bun.lockb`→bun).
+2. Install devDeps: `husky lint-staged prettier`.
+3. `npx husky init` (creates `.husky/`, adds `prepare: "husky"` to package.json).
+4. Write `.husky/pre-commit` (no shebang for Husky v9+):
+
+   ```
+   npx lint-staged
+   npm run typecheck
+   npm run test
+   ```
+
+   Adapt `npm` to the detected PM; omit `typecheck`/`test` lines if those scripts don't exist.
+5. `.lintstagedrc`: `{ "*": "prettier --ignore-unknown --write" }` (`--ignore-unknown` skips unparseable files).
+6. Verify: `npx lint-staged` runs clean; `prepare` script present.
+
+Keep pre-commit **fast** (staged-only via lint-staged); heavy suites stay in CI. Pre-commit is convenience, not enforcement — CI remains the hard gate.
+
 ### Dependabot / Renovate
 
 ```yaml
