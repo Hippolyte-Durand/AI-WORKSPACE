@@ -30,5 +30,16 @@ done
 KIMI_HOME="${KIMI_CODE_HOME:-$HOME/.kimi-code}"
 mkdir -p "$KIMI_HOME"
 ln -sfn "$WS/skills" "$KIMI_HOME/skills"
+# MCP (qmd + supabase) — même format JSON → lien direct.
+ln -sfn "$WS/config/kimi/mcp.json" "$KIMI_HOME/mcp.json"
+
+# --- Gemini CLI ---
+# Hooks RTK : fusion jq dans ~/.gemini/settings.json (préserve mcpServers/secrets).
+# Pas de lien possible : Gemini exige un settings.json complet, pas un fragment.
+if [ -f "$HOME/.gemini/settings.json" ] && command -v jq >/dev/null 2>&1; then
+  _tmp=$(mktemp)
+  jq -s '.[0] * .[1]' "$HOME/.gemini/settings.json" "$WS/config/gemini/hooks.json" > "$_tmp" \
+    && mv "$_tmp" "$HOME/.gemini/settings.json"
+fi
 
 echo "[ai-workspace] symlinks en place. Redémarrer les CLIs pour prise en compte."
