@@ -1,0 +1,19 @@
+# Secrets — ne jamais tracker
+*.env
+*.env.*
+*secret*
+*key*
+*.pem
+id_rsa*
+id_ed25519*
+*.local.json
+history.jsonl
+
+# Runtime injecté par les CLIs dans les skills symlinkés
+.system/
+
+# Logs
+logs/
+
+# macOS
+.DS_Store

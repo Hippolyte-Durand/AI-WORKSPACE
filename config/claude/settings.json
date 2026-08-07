@@ -1,0 +1,118 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/hippo/WORK/CI-CD_BUILDER_HYPERV log --oneline -5 -- .github/workflows)",
+      "Bash(find /Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/ci-cd-builder-hyperv -maxdepth 2)",
+      "Read(//Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/ci-cd-builder-hyperv/**)",
+      "Bash(git pull *)",
+      "Bash(git push *)",
+      "Bash(curl -sI http://10.250.11.16:8080/style.css --max-time 5)",
+      "Bash(curl -s http://10.250.11.16:8080/style.css --max-time 5)",
+      "Bash(grep -n \"^### \\\\`\" .github/scripts/README.md)"
+    ],
+    "additionalDirectories": [
+      "/Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/DevSecOps-Présentation"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/id_rsa)",
+      "Read(**/id_ed25519)",
+      "Read(**/*.pem)",
+      "Read(**/.aws/**)",
+      "Read(**/.ssh/**)",
+      "Bash(rm -rf *)"
+    ]
+  },
+  "model": "opus",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p ~/.claude/logs && jq -r '(now|strftime(\"%H:%M:%S\")) + \" \" + .tool_name + \" \" + (.tool_input | to_entries | .[0]?.value // \"\" | tostring | .[0:80])' >> ~/.claude/logs/actions.log 2>/dev/null || true",
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"/Users/hippo/.claude/hooks/combined-statusline.sh\""
+  },
+  "enabledPlugins": {
+    "notion@claude-plugins-official": false,
+    "ponytail@ponytail": true,
+    "nightvision@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": false,
+    "claude-code-setup@claude-plugins-official": false,
+    "context-engineering@context-engineering-marketplace": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": false,
+    "caveman@caveman": true,
+    "code-review@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true,
+    "qmd@qmd": true,
+    "build-with-wordpress@claude-plugins-official": false,
+    "mattpocock-skills@mattpocock": false,
+    "figma@claude-plugins-official": false
+  },
+  "extraKnownMarketplaces": {
+    "context-engineering-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "muratcankoylan/Agent-Skills-for-Context-Engineering"
+      }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/juliusbrussee/caveman.git"
+      }
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    },
+    "qmd": {
+      "source": {
+        "source": "github",
+        "repo": "tobi/qmd"
+      }
+    },
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      }
+    }
+  },
+  "effortLevel": "medium",
+  "theme": "dark"
+}
