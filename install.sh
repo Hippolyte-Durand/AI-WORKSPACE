@@ -46,20 +46,12 @@ for f in mcp.json config.toml tui.toml; do
   [ -e "$WS/config/kimi/$f" ] && ln -sfn "$WS/config/kimi/$f" "$KIMI_HOME/$f"
 done
 
-# --- Gemini CLI + Antigravity : skills GLOBAUX (tout dossier, tout projet) ---
-# ~/.gemini/skills        = user scope Gemini CLI (v0.27+, dispo dans tous les projets)
+# --- Antigravity (CLI Google, sur abonnement) : skills GLOBAUX ---
 # ~/.gemini/config/skills = seul chemin reconnu par les 3 flavours Antigravity
 #                           (AGY, AGY CLI, AGY IDE — tests empiriques, juil. 2026)
-link_skills_into "$HOME/.gemini/skills"
+# Gemini CLI n'est PAS configuré ici : il passe par API payante, inutilisé.
+# (son user scope serait ~/.gemini/skills, son hook RTK via config/gemini/hooks.json
+#  — retirés le 2026-08-07, récupérables dans l'historique git si besoin)
 link_skills_into "$HOME/.gemini/config/skills"
-
-# --- Gemini CLI : hooks RTK ---
-# Fusion jq dans ~/.gemini/settings.json (préserve mcpServers/secrets locaux).
-# Pas de lien possible : Gemini exige un settings.json complet, pas un fragment.
-if [ -f "$HOME/.gemini/settings.json" ] && command -v jq >/dev/null 2>&1; then
-  _tmp=$(mktemp)
-  jq -s '.[0] * .[1]' "$HOME/.gemini/settings.json" "$WS/config/gemini/hooks.json" > "$_tmp" \
-    && mv "$_tmp" "$HOME/.gemini/settings.json"
-fi
 
 echo "[ai-workspace] symlinks en place. Redémarrer les CLIs pour prise en compte."

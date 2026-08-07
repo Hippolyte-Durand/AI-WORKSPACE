@@ -1,17 +1,18 @@
 #!/usr/bin/env sh
 # ai-workspace — link-project.sh <chemin-du-projet>
 # Lie les skills de la source unique dans un projet donné.
-# NB : les skills personnels sont déjà GLOBAUX (~/.gemini/skills +
-# ~/.gemini/config/skills, voir install.sh) — ce script ne sert que pour
-# du workspace-scoped explicite (ex. projet partagé, skills versionnés dans le repo).
+# NB : les skills personnels sont déjà GLOBAUX (~/.claude/skills,
+# ~/.kimi-code/skills, ~/.gemini/config/skills — voir install.sh) : ce script
+# ne sert que pour du workspace-scoped explicite (ex. projet partagé).
 # Antigravity lit <projet>/.agents/skills (docs actuelles) ; .agent/skills (sans S)
 # est l'ancien chemin — on lie les deux pour compatibilité. Idempotent.
+# (Gemini CLI volontairement absent : API payante, inutilisé.)
 set -e
 WS="$(cd "$(dirname "$0")" && pwd)"
 PROJECT="${1:?usage: sh link-project.sh <chemin-du-projet>}"
 [ -d "$PROJECT" ] || { echo "erreur: $PROJECT n'existe pas"; exit 1; }
 
-for sub in .agents/skills .agent/skills .gemini/skills; do
+for sub in .agents/skills .agent/skills; do
   target_dir="$PROJECT/$sub"
   mkdir -p "$target_dir"
   for s in "$WS"/skills/*/; do
