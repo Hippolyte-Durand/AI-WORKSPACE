@@ -7,7 +7,7 @@ description: Conducts multi-axis code review. Use before merging any change. Use
 
 ## Overview
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. Review covers five axes: correctness, readability, architecture, security, and performance.
+Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. Review covers six axes: correctness, readability, architecture, security, performance, and over-engineering.
 
 **The approval standard:** Approve a change when it definitely improves overall code health, even if it isn't perfect. Perfect code doesn't exist — the goal is continuous improvement. Don't block a change because it isn't exactly how you would have written it. If it improves the codebase and follows the project's conventions, approve it.
 
@@ -19,7 +19,7 @@ Multi-dimensional code review with quality gates. Every change gets reviewed bef
 - When refactoring existing code
 - After any bug fix (review both the fix and the regression test)
 
-## The Five-Axis Review
+## The Six-Axis Review
 
 Every review evaluates code across these dimensions:
 
@@ -84,6 +84,18 @@ For detailed profiling and optimization, see `performance-optimization`. Does th
 - Any unnecessary re-renders in UI components?
 - Any missing pagination on list endpoints?
 - Any large objects created in hot paths?
+
+### 6. Over-Engineering — What to Delete
+
+The best review outcome is a shorter diff. Hunt specifically for (tag taxonomy, one line per finding):
+
+- `delete:` dead code, unused flexibility, speculative features — replacement: nothing
+- `stdlib:` hand-rolled what the standard library ships — name the function (e.g. a 27-line validator class → `"@" in email`, real validation is the confirmation mail)
+- `native:` a dependency doing what the platform already does — name the feature (e.g. moment.js for one format call → `Intl.DateTimeFormat`, 0 deps)
+- `yagni:` abstraction with one implementation, config nobody sets, layer with one caller — inline it until a second case exists
+- `shrink:` same logic in fewer lines — show the shorter form
+
+Close this axis with the only metric that matters: `net: -<N> lines possible.` If there is nothing to cut, say so explicitly and move on. Never flag a smoke test or `assert`-based self-check for deletion — that is the minimum, not bloat.
 
 ## Structural Remedies
 
@@ -172,6 +184,7 @@ For each file changed:
 3. Architecture: Does this fit the system?
 4. Security: Any vulnerabilities?
 5. Performance: Any bottlenecks?
+6. Over-engineering: What can be deleted, shrunk, or replaced by stdlib/native?
 ```
 
 ### Step 4: Categorize Findings
@@ -189,6 +202,8 @@ Label every comment with its severity so the author knows what's required vs opt
 This prevents authors from treating all feedback as mandatory and wasting time on optional suggestions.
 
 **Lead with what matters.** Order findings by leverage: correctness and security first, then structural regressions and missed simplifications, then everything else. Don't bury a real issue under cosmetic nits — a few high-conviction comments beat a long list. If you have one structural problem and ten nits, the structural problem *is* the review.
+
+**Terse output format for PR comments.** One line per finding: `L<line>: <severity> <problem>. <fix>.` — or `<file>:L<line>:` for multi-file diffs. Drop throat-clearing ("I noticed that…", "You might want to consider…"), hedging ("perhaps", "maybe" — if genuinely unsure, ask a question instead), and restating what the line does. Keep exact line numbers, symbol names in backticks, and a concrete fix, not "consider refactoring". Exceptions that justify a full paragraph instead of a one-liner: security findings (CVE-class bugs need explanation + reference), architectural disagreements (need rationale), and onboarding contexts (the author needs the "why").
 
 ### Step 5: Verify the Verification
 
@@ -336,6 +351,11 @@ For triaging `npm audit` findings and supply-chain risk (typosquatting, compromi
 - [ ] No N+1 patterns
 - [ ] No unbounded operations
 - [ ] Pagination on list endpoints
+
+### Over-engineering
+- [ ] No dead code, speculative features, or single-implementation abstractions (`delete:`/`yagni:`)
+- [ ] Nothing hand-rolled that stdlib/platform already provides (`stdlib:`/`native:`)
+- [ ] Net line-count outcome stated (`net: -N lines possible` or "lean already")
 
 ### Verification
 - [ ] Tests pass
