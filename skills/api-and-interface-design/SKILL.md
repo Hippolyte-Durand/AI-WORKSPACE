@@ -292,3 +292,7 @@ After designing an API:
 - [ ] New fields are additive and optional (backward compatible)
 - [ ] Naming follows consistent conventions across all endpoints
 - [ ] API documentation or types are committed alongside the implementation
+
+## See Also
+
+For **agent-facing tools / MCP interfaces** (tool description = prompt that steers selection, the consolidation principle, actionable error messages, `Server:tool` naming), see the `tool-design` skill (AI-Agent Engineering domain).
