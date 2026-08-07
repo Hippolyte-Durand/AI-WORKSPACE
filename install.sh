@@ -10,9 +10,12 @@ WS="$(cd "$(dirname "$0")" && pwd)"
 # Une vraie copie existante n'est remplacée que si identique à la source.
 link_skills_into() {
   mkdir -p "$1"
-  # purge les liens morts (skills retirés de la source depuis le dernier run)
+  # purge les liens morts (skills retirés/déplacés depuis le dernier run)
   find "$1" -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null
-  for s in "$WS"/skills/*/; do
+  # récursif : un skill = un dossier contenant SKILL.md, à n'importe quelle
+  # profondeur (source rangée par thème). Le CLI reçoit toujours du PLAT.
+  find "$WS/skills" -name SKILL.md | while read -r f; do
+    s="$(dirname "$f")"
     name="$(basename "$s")"
     t="$1/$name"
     if [ -e "$t" ] && [ ! -L "$t" ]; then
@@ -23,7 +26,7 @@ link_skills_into() {
         continue
       fi
     fi
-    ln -sfn "${s%/}" "$t"
+    ln -sfn "$s" "$t"
   done
 }
 
@@ -51,7 +54,10 @@ fi
 # Même format SKILL.md → lien direct vers la source partagée.
 KIMI_HOME="${KIMI_CODE_HOME:-$HOME/.kimi-code}"
 mkdir -p "$KIMI_HOME"
-ln -sfn "$WS/skills" "$KIMI_HOME/skills"
+# skills per-skill (source thémée en sous-dossiers → CLI à plat). Retirer
+# l'ancien symlink-dossier d'abord, sinon link_skills_into écrirait DANS la source.
+[ -L "$KIMI_HOME/skills" ] && rm -f "$KIMI_HOME/skills"
+link_skills_into "$KIMI_HOME/skills"
 # Config agent/TUI + instructions globales — même format, liens directs.
 # (les tokens OAuth vivent dans $KIMI_HOME/oauth/, hors repo)
 for f in config.toml tui.toml AGENTS.md; do
