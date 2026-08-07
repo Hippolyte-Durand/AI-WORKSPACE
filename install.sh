@@ -40,11 +40,26 @@ link_skills_into "$HOME/.claude/skills"
 KIMI_HOME="${KIMI_CODE_HOME:-$HOME/.kimi-code}"
 mkdir -p "$KIMI_HOME"
 ln -sfn "$WS/skills" "$KIMI_HOME/skills"
-# MCP (qmd + supabase) + config agent/TUI — même format, liens directs.
+# Config agent/TUI — même format, liens directs.
 # (les tokens OAuth vivent dans $KIMI_HOME/oauth/, hors repo)
-for f in mcp.json config.toml tui.toml; do
+for f in config.toml tui.toml; do
   [ -e "$WS/config/kimi/$f" ] && ln -sfn "$WS/config/kimi/$f" "$KIMI_HOME/$f"
 done
+# MCP : source canonique unique (config/mcp/servers.json), lien direct.
+ln -sfn "$WS/config/mcp/servers.json" "$KIMI_HOME/mcp.json"
+
+# --- MCP partagé (qmd + supabase) : Claude + Antigravity ---
+# Claude : user scope = ~/.claude.json, fichier d'état (sessions, oauth)
+#          → merge jq, pas de lien. ⚠️ Lancer install.sh Claude fermé :
+#          un Claude ouvert réécrit ~/.claude.json en sortant et écraserait le merge.
+if [ -f "$HOME/.claude.json" ] && command -v jq >/dev/null 2>&1; then
+  _tmp=$(mktemp)
+  jq -s '.[0] * .[1]' "$HOME/.claude.json" "$WS/config/mcp/servers.json" > "$_tmp" \
+    && mv "$_tmp" "$HOME/.claude.json"
+fi
+# Antigravity : fichier MCP dédié (~/.gemini/config/mcp_config.json) → lien direct.
+mkdir -p "$HOME/.gemini/config"
+ln -sfn "$WS/config/mcp/servers.json" "$HOME/.gemini/config/mcp_config.json"
 
 # --- Antigravity (CLI Google, sur abonnement) : skills GLOBAUX ---
 # ~/.gemini/config/skills = seul chemin reconnu par les 3 flavours Antigravity
