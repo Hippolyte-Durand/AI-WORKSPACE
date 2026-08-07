@@ -21,6 +21,8 @@
       "Read(**/*.pem)",
       "Read(**/.aws/**)",
       "Read(**/.ssh/**)",
+      "Read(//Users/hippo/.zshenv)",
+      "Read(//Users/hippo/.zshrc)",
       "Bash(rm -rf *)"
     ]
   },

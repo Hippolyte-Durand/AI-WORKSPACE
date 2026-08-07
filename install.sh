@@ -10,6 +10,8 @@ WS="$(cd "$(dirname "$0")" && pwd)"
 # Une vraie copie existante n'est remplacée que si identique à la source.
 link_skills_into() {
   mkdir -p "$1"
+  # purge les liens morts (skills retirés de la source depuis le dernier run)
+  find "$1" -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null
   for s in "$WS"/skills/*/; do
     name="$(basename "$s")"
     t="$1/$name"
@@ -34,6 +36,16 @@ for x in settings.json CLAUDE.md RTK.md hooks agents agents-drafts; do
 done
 # Claude injecte du .system/ dans ~/.claude/skills → liens par skill.
 link_skills_into "$HOME/.claude/skills"
+# Commands Claude (cycle de vie addy : /spec /plan /build /test /review /ship…)
+# — liens par fichier. Les skills restent invoquables par /nom dans les 3 CLIs ;
+# ces commands sont la couche routing du cycle, format spécifique Claude.
+if [ -d "$WS/commands/claude" ]; then
+  mkdir -p "$HOME/.claude/commands"
+  find "$HOME/.claude/commands" -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null
+  for c in "$WS"/commands/claude/*.md; do
+    ln -sfn "$c" "$HOME/.claude/commands/$(basename "$c")"
+  done
+fi
 
 # --- Kimi Code ---
 # Même format SKILL.md → lien direct vers la source partagée.
