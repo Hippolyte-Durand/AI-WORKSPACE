@@ -16,4 +16,4 @@ For bug fixes (Prove-It pattern):
 4. Confirm the test passes
 5. Run the full test suite for regressions
 
-For browser-related issues, also invoke browser-testing-with-devtools to verify with Chrome DevTools MCP.
+Browser issues can be verified manually in the browser (console, network, DOM inspection).
