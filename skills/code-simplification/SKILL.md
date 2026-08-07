@@ -27,6 +27,24 @@ Simplify code by reducing complexity while preserving exact behavior. The goal i
 - The code is performance-critical and the "simpler" version would be measurably slower
 - You're about to rewrite the module entirely — simplifying throwaway code wastes effort
 
+## The Laziness Ladder — prevent before you clean
+
+The cheapest simplification is the code never written. Before adding anything (and when reviewing an addition), climb this ladder and stop at the first rung that holds:
+
+1. **Does this need to exist at all?** Speculative need → skip it, say so in one line. (YAGNI)
+2. **Already in this codebase?** A helper, util, type, or pattern that already lives here → reuse it. Re-implementing what's a few files over is the most common slop.
+3. **Stdlib does it?** Use it.
+4. **Native platform feature covers it?** `<input type="date">` over a picker lib, CSS over JS, DB constraint over app code.
+5. **Already-installed dependency solves it?** Use it — never add a new dep for what a few lines do.
+6. **Can it be one line?** One line.
+7. **Only then:** the minimum code that works.
+
+The ladder runs *after* you understand the problem, never instead of it. Deletion over addition. No unrequested abstractions (no interface with one impl, no factory for one product, no config for a value that never changes). No scaffolding "for later" — later can scaffold for itself.
+
+**Mark deliberate shortcuts** with a `ponytail:` comment naming the ceiling and the upgrade path — `# ponytail: global lock, per-account locks if throughput matters` — so a shortcut reads as intent, not ignorance.
+
+**Never lazy about understanding**: the ladder shortens the solution, never the reading. For non-trivial logic (branch, loop, parser, money/security path), leave ONE runnable check behind — an `assert`-based `demo()`/`__main__` or one small `test_*`.
+
 ## The Five Principles
 
 ### 1. Preserve Behavior Exactly
