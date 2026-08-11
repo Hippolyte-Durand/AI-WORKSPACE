@@ -9,6 +9,9 @@ id_ed25519*
 *.local.json
 history.jsonl
 
+# Templates rendus par install.sh (chemins absolus machine-locaux)
+.rendered/
+
 # Runtime injecté par les CLIs dans les skills symlinkés
 .system/
 

@@ -5,6 +5,17 @@
 set -e
 WS="$(cd "$(dirname "$0")" && pwd)"
 
+# Rend un template .tpl en substituant __WS__ par le chemin absolu du clone
+# (les @imports doivent être absolus : pas de ~/ universel Claude/Kimi/AGY).
+# Sortie dans $WS/.rendered/ (gitignoré) → portable sur toute machine/user.
+RENDERED="$WS/.rendered"
+mkdir -p "$RENDERED"
+render() {  # render <tpl> <basename-sortie> ; echo le chemin rendu
+  out="$RENDERED/$2"
+  sed "s|__WS__|$WS|g" "$1" > "$out"
+  echo "$out"
+}
+
 # Lie chaque skill de $WS/skills dans $1 (un symlink PAR skill, jamais le dossier
 # entier : certains CLIs écrivent du runtime dans leur dossier skills).
 # Une vraie copie existante n'est remplacée que si identique à la source.
@@ -34,9 +45,11 @@ link_skills_into() {
 # Symlinks par FICHIER/dossier de config, jamais ~/.claude entier (runtime :
 # sessions, caches, .system/). settings.local.json reste local, hors repo.
 mkdir -p "$HOME/.claude"
-for x in settings.json CLAUDE.md RTK.md hooks agents agents-drafts; do
+for x in settings.json RTK.md hooks agents agents-drafts; do
   [ -e "$WS/config/claude/$x" ] && ln -sfn "$WS/config/claude/$x" "$HOME/.claude/$x"
 done
+# CLAUDE.md : rendu depuis .tpl (imports absolus portables), puis symlink.
+ln -sfn "$(render "$WS/config/claude/CLAUDE.md.tpl" CLAUDE.md)" "$HOME/.claude/CLAUDE.md"
 # Claude injecte du .system/ dans ~/.claude/skills → liens par skill.
 link_skills_into "$HOME/.claude/skills"
 # Commands Claude (cycle de vie addy : /spec /plan /build /test /review /ship…)
@@ -60,9 +73,11 @@ mkdir -p "$KIMI_HOME"
 link_skills_into "$KIMI_HOME/skills"
 # Config agent/TUI + instructions globales — même format, liens directs.
 # (les tokens OAuth vivent dans $KIMI_HOME/oauth/, hors repo)
-for f in config.toml tui.toml AGENTS.md; do
+for f in config.toml tui.toml; do
   [ -e "$WS/config/kimi/$f" ] && ln -sfn "$WS/config/kimi/$f" "$KIMI_HOME/$f"
 done
+# AGENTS.md : rendu depuis .tpl (imports absolus portables), puis symlink.
+ln -sfn "$(render "$WS/config/kimi/AGENTS.md.tpl" kimi-AGENTS.md)" "$KIMI_HOME/AGENTS.md"
 # MCP : source canonique unique (config/mcp/servers.json), lien direct.
 ln -sfn "$WS/config/mcp/servers.json" "$KIMI_HOME/mcp.json"
 
@@ -87,7 +102,8 @@ ln -sfn "$WS/config/mcp/servers.json" "$HOME/.gemini/config/mcp_config.json"
 #  — retirés le 2026-08-07, récupérables dans l'historique git si besoin)
 link_skills_into "$HOME/.gemini/config/skills"
 # Règles globales Antigravity = ~/.gemini/GEMINI.md (lu par les 3 flavours).
-# Lien direct vers la charte usine (cycle dev par défaut).
-ln -sfn "$WS/USINE.md" "$HOME/.gemini/GEMINI.md"
+# Stub qui importe AGENTS.md (anti-lock) + USINE.md (cycle dev) — mêmes
+# doctrines que Claude/Kimi. Rendu depuis .tpl (imports absolus portables).
+ln -sfn "$(render "$WS/config/gemini/GEMINI.md.tpl" GEMINI.md)" "$HOME/.gemini/GEMINI.md"
 
 echo "[ai-workspace] symlinks en place. Redémarrer les CLIs pour prise en compte."
