@@ -17,6 +17,58 @@ Ship with confidence. The goal is not just to deploy — it's to deploy safely, 
 - Opening a beta or early access program
 - Any deployment that carries risk (all of them)
 
+## Fan-Out Review Orchestration
+
+For production-bound changes, don't run the pre-launch checklist as one linear pass. Fan out to three specialist reviewers, then merge their reports into a single go/no-go decision with a rollback plan. The reviewers operate independently — no shared state, no ordering — which is what makes parallel execution safe.
+
+**Skip the fan-out only if all of these hold:** the change touches 2 files or fewer, the diff is under 50 lines, and it does not touch auth, payments, data access, or config/env. Otherwise fan out even if the diff looks small — blast radius, not line count, is what matters.
+
+### Phase A — Fan out to three reviewers
+
+Run three independent passes over the staged changes or recent commits:
+
+1. **Code reviewer** — five-axis review (correctness, readability, architecture, security, performance). Output the standard review template.
+2. **Security auditor** — vulnerability and threat-model pass: OWASP Top 10, secrets handling, auth/authz, dependency CVEs. Output the standard audit report.
+3. **Test engineer** — coverage analysis: gaps in happy path, edge cases, error paths, concurrency. Output the standard coverage analysis.
+
+*If your harness has parallel subagents* (Claude Code: issue all three Agent-tool calls with `subagent_type` `code-reviewer` / `security-auditor` / `test-engineer` in **one turn** so they run concurrently; user-level `~/.claude/agents/` definitions override the defaults). *If it doesn't* (Kimi, Antigravity, single-context runs): run the three passes sequentially and treat their outputs as if returned in parallel — the merge phase is identical. Reviewers never call each other; the main context merges.
+
+### Phase B — Merge in main context
+
+Once all three reports are in, the main context (not a sub-persona) synthesizes, mapping findings onto the checklist sections below:
+
+1. **Code Quality** — aggregate Critical/Important findings from the code reviewer + any failing tests, lint, or build output. Resolve duplicates.
+2. **Security** — promote Critical/High auditor findings to launch blockers. Cross-reference the reviewer's security axis.
+3. **Performance** — pull from the reviewer's performance axis; cross-check Core Web Vitals if applicable.
+4. **Accessibility** — verify keyboard nav, screen reader, contrast directly (not covered by the three reviewers).
+5. **Infrastructure** — env vars, migrations, monitoring, feature flags. Verify directly.
+6. **Documentation** — README, ADRs, changelog. Verify directly.
+
+### Phase C — Decision and rollback
+
+Produce a single output:
+
+```markdown
+## Ship Decision: GO | NO-GO
+
+### Blockers (must fix before ship)
+- [Source reviewer: Critical finding + file:line]
+
+### Recommended fixes (should fix before ship)
+- [Source reviewer: Important finding + file:line]
+
+### Acknowledged risks (shipping anyway)
+- [Risk + mitigation]
+
+### Rollback plan
+- Trigger conditions / Rollback procedure / Recovery time objective
+
+### Specialist reports (full)
+- [code reviewer] / [security auditor] / [test engineer]
+```
+
+**Rules:** the three Phase A passes are independent; the rollback plan is mandatory before any GO; if any reviewer returns a Critical finding, the default verdict is NO-GO unless the user explicitly accepts the risk.
+
 ## The Pre-Launch Checklist
 
 ### Code Quality

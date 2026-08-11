@@ -196,6 +196,25 @@ verify nothing is broken."
 
 Be explicit about what's in scope and what's NOT in scope for each increment.
 
+## Autonomous Mode: Implementing a Whole Plan
+
+The default mode implements the *next* pending task, then stops for a human step. Autonomous mode collapses plan + build into one run: it removes the manual stepping *between* tasks — **not** the verification. Every task still earns a passing test and its own commit.
+
+Use it once a spec exists and you want to run the whole plan unattended. In Claude Code this is `/build auto`; invoked directly, treat it as "implement every pending task without stopping between them."
+
+1. **Require a spec.** Look only at known paths: `SPEC.md` at the repo root, `docs/SPEC.md`, or a file under `spec/`. A README or arbitrary doc does **not** count. If none exists, stop and tell the user to write a spec first (see `spec-driven-development`) — do not invent requirements.
+2. **Establish a clean baseline.** Run `git status --porcelain`. If there are uncommitted changes outside the expected planning artifacts (`SPEC.md`, `docs/SPEC.md`, `spec/*`, `tasks/plan.md`, `tasks/todo.md`), stop and ask the user to commit, stash, or confirm how to handle them. Autonomous per-task commits must not absorb unrelated local work, or the clean-rollback guarantee breaks.
+3. **Plan if needed.** If there is no `tasks/plan.md`, generate one first (see `planning-and-task-breakdown`).
+4. **Single checkpoint.** Present the full plan and wait for an unambiguous affirmative ("approve", "go", "yes"). Treat hedged responses ("looks reasonable", "I guess") as **not** approved. This is the only human gate — after approval, run autonomously. If you generated `tasks/plan.md`, commit it as a single preparatory commit now so it doesn't bleed into the first task's commit.
+5. **Execute every task in dependency order.** Use each task's declared dependencies; if not explicit, follow the order the plan lists. For each task, run the full increment cycle above (implement → test → verify → commit). Stage only the files that task touched plus its task-status update — never `git add -A` blindly — one commit per task so any point is a clean rollback.
+6. **Stop and ask the user** (do not push through) when:
+   - a test can't be made to pass or the build breaks without an obvious fix → follow `debugging-and-error-recovery`
+   - the spec is ambiguous, or a task needs a decision the spec doesn't cover
+   - a task is high-risk or irreversible — auth/permission changes, destructive data migrations, payments, deletions, deploys, anything touching secrets, **or anything you can't undo with `git revert`** → follow `doubt-driven-development` and get explicit sign-off before continuing
+
+   After the user resolves a blocker, they re-invoke autonomous mode — it resumes from the next pending task.
+7. **Summarize at the end:** tasks completed, tests added, commits made, and anything skipped, flagged, or left for the user.
+
 ## Increment Checklist
 
 After each increment, verify with the repository's own commands (see the test-driven-development skill's Discover the Stack First section):
