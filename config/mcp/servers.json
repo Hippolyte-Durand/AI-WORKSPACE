@@ -12,6 +12,9 @@
       "args": ["-y", "@drawio/mcp"]
     },
     "notion": {
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "notion-cli": {
       "command": "npx",
       "args": ["-y", "@notionhq/notion-mcp-server"],
       "env": {
