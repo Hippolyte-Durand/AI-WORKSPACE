@@ -76,13 +76,17 @@ ln -sfn "$(render "$WS/config/kimi/AGENTS.md.tpl" kimi-AGENTS.md)" "$KIMI_HOME/A
 # MCP : source canonique unique (config/mcp/servers.json), lien direct.
 ln -sfn "$WS/config/mcp/servers.json" "$KIMI_HOME/mcp.json"
 
-# --- MCP partagé (qmd + supabase) : Claude + Antigravity ---
-# Claude : user scope = ~/.claude.json, fichier d'état (sessions, oauth)
-#          → merge jq, pas de lien. ⚠️ Lancer install.sh Claude fermé :
-#          un Claude ouvert réécrit ~/.claude.json en sortant et écraserait le merge.
+# --- MCP partagé : Claude + Antigravity ---
+# Claude : user scope = ~/.claude.json, fichier d'état (sessions, oauth) non
+#   symlinkable → on REMPLACE la clé mcpServers par celle du repo (autoritaire :
+#   ajoute ET retire, pas de serveur fantôme). Tout le reste de l'état est
+#   préservé. Source unique = config/mcp/servers.json, zéro drift.
+#   ⚠️ Lancer install.sh Claude fermé : un Claude ouvert réécrit ~/.claude.json
+#   en sortant et écraserait la sync.
 if [ -f "$HOME/.claude.json" ] && command -v jq >/dev/null 2>&1; then
   _tmp=$(mktemp)
-  jq -s '.[0] * .[1]' "$HOME/.claude.json" "$WS/config/mcp/servers.json" > "$_tmp" \
+  jq --slurpfile s "$WS/config/mcp/servers.json" \
+    '.mcpServers = $s[0].mcpServers' "$HOME/.claude.json" > "$_tmp" \
     && mv "$_tmp" "$HOME/.claude.json"
 fi
 # Antigravity : fichier MCP dédié (~/.gemini/config/mcp_config.json) → lien direct.
