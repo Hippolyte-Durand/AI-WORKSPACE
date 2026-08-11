@@ -2,28 +2,41 @@
   "mcpServers": {
     "qmd": {
       "command": "qmd",
-      "args": ["mcp"]
+      "args": [
+        "mcp"
+      ]
     },
     "supabase": {
+      "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=murpjwublubvozfisvhp&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
     },
     "drawio": {
       "command": "npx",
-      "args": ["-y", "@drawio/mcp"]
+      "args": [
+        "-y",
+        "@drawio/mcp"
+      ]
     },
     "notion": {
+      "type": "http",
       "url": "https://mcp.notion.com/mcp"
     },
     "notion-cli": {
       "command": "npx",
-      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
       "env": {
         "OPENAPI_MCP_HEADERS": "${OPENAPI_MCP_HEADERS}"
       }
     },
     "excalidraw": {
       "command": "npx",
-      "args": ["-y", "excalidraw-mcp"]
+      "args": [
+        "-y",
+        "excalidraw-mcp"
+      ]
     }
   }
 }
