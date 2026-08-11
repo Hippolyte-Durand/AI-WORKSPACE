@@ -52,16 +52,11 @@ done
 ln -sfn "$(render "$WS/config/claude/CLAUDE.md.tpl" CLAUDE.md)" "$HOME/.claude/CLAUDE.md"
 # Claude injecte du .system/ dans ~/.claude/skills → liens par skill.
 link_skills_into "$HOME/.claude/skills"
-# Commands Claude (cycle de vie addy : /spec /plan /build /test /review /ship…)
-# — liens par fichier. Les skills restent invoquables par /nom dans les 3 CLIs ;
-# ces commands sont la couche routing du cycle, format spécifique Claude.
-if [ -d "$WS/commands/claude" ]; then
-  mkdir -p "$HOME/.claude/commands"
+# Purge les commands du cycle (retirées : l'orchestration vit désormais dans les
+# skills, invoqués par /nom à l'identique sur les 3 CLIs). Ne touche que nos
+# liens morts, pas d'éventuelles commands perso encore valides.
+[ -d "$HOME/.claude/commands" ] && \
   find "$HOME/.claude/commands" -maxdepth 1 -type l ! -exec test -e {} \; -delete 2>/dev/null
-  for c in "$WS"/commands/claude/*.md; do
-    ln -sfn "$c" "$HOME/.claude/commands/$(basename "$c")"
-  done
-fi
 
 # --- Kimi Code ---
 # Même format SKILL.md → lien direct vers la source partagée.

@@ -7,8 +7,9 @@ Ce fichier est la règle **par défaut** pour tout développement logiciel, quel
 
 ```
 DEFINE → PLAN → BUILD → VERIFY → REVIEW → SHIP
- /spec    /plan   /build   /test     /review   /ship
 ```
+
+Chaque phase = un skill, invoqué par son nom à l'identique sur les 3 CLIs (voir table).
 
 | Phase | Skill | Gate de sortie |
 |---|---|---|
@@ -32,7 +33,7 @@ Skills d'appui : `security-and-hardening`, `performance-optimization`, `code-sim
 
 ## Notes multi-CLI
 
-- Les commands `/spec` `/plan` `/build` `/test` `/review` `/ship` `/code-simplify` = **Claude only**. Kimi et Antigravity : invoquer les skills directement par nom (ex. `/spec-driven-development`).
+- Chaque phase = un **skill invoqué par son nom**, à l'identique sur les 3 CLIs (ex. `/spec-driven-development`, `/incremental-implementation`, `/shipping-and-launch`). Plus de commands `/spec /build /ship…` propres à Claude : leur orchestration (mode autonome de build, fan-out de ship) vit maintenant **dans les skills** eux-mêmes. Un seul mode d'invocation partout.
 - Personas Claude (subagents) : `code-reviewer`, `test-engineer`, `security-auditor`.
 - Le méta-skill `using-agent-skills` route vers le bon skill si doute.
 
