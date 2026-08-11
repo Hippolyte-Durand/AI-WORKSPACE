@@ -10,9 +10,6 @@
       "Bash(curl -s http://10.250.11.16:8080/style.css --max-time 5)",
       "Bash(grep -n \"^### \\\\`\" .github/scripts/README.md)"
     ],
-    "additionalDirectories": [
-      "/Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/DevSecOps-Présentation"
-    ],
     "deny": [
       "Read(**/.env)",
       "Read(**/.env.*)",
@@ -24,10 +21,23 @@
       "Read(//Users/hippo/.zshenv)",
       "Read(//Users/hippo/.zshrc)",
       "Bash(rm -rf *)"
+    ],
+    "additionalDirectories": [
+      "/Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/DevSecOps-Présentation"
     ]
   },
   "model": "opus",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/modes-activate.sh\""
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -57,13 +67,13 @@
   },
   "enabledPlugins": {
     "notion@claude-plugins-official": false,
-    "ponytail@ponytail": true,
+    "ponytail@ponytail": false,
     "nightvision@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
     "claude-code-setup@claude-plugins-official": false,
     "context-engineering@context-engineering-marketplace": false,
     "ui-ux-pro-max@ui-ux-pro-max-skill": false,
-    "caveman@caveman": true,
+    "caveman@caveman": false,
     "code-review@claude-plugins-official": true,
     "obsidian@obsidian-skills": false,
     "qmd@qmd": false,
