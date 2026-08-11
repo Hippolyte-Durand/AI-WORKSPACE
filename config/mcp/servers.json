@@ -10,6 +10,9 @@
     "drawio": {
       "command": "npx",
       "args": ["-y", "@drawio/mcp"]
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp"
     }
   }
 }
