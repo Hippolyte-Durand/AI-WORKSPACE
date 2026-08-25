@@ -4,22 +4,30 @@
       "command": "qmd",
       "args": [
         "mcp"
-      ]
+      ],
+      "disabled": true
     },
     "supabase": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=murpjwublubvozfisvhp&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
+      "url": "https://mcp.supabase.com/mcp?project_ref=murpjwublubvozfisvhp&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
+      "disabled": false
+
+    
     },
     "drawio": {
       "command": "npx",
       "args": [
         "-y",
         "@drawio/mcp"
-      ]
+      ],
+      "disabled": true
+
     },
     "notion": {
       "type": "http",
-      "url": "https://mcp.notion.com/mcp"
+      "url": "https://mcp.notion.com/mcp",
+      "disabled": true
+
     },
     "notion-cli": {
       "command": "npx",
@@ -29,14 +37,25 @@
       ],
       "env": {
         "OPENAPI_MCP_HEADERS": "${OPENAPI_MCP_HEADERS}"
-      }
+      },
+      "disabled": true
+
     },
     "excalidraw": {
       "command": "npx",
       "args": [
         "-y",
         "excalidraw-mcp"
-      ]
+      ],
+      "disabled": true
+
+    },
+    "n8n": {
+      "type": "http",
+      "url": "http://localhost:5678/mcp-server/http",
+      "bearerTokenEnvVar": "N8N_MCP_BEARER",
+      "disabled": false
+
     }
   }
 }

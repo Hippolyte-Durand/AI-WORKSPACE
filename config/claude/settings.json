@@ -26,7 +26,7 @@
       "/Users/hippo/WORK/OBSIDIAN_VAULT/DATA/1-Projects/DevSecOps-Présentation"
     ]
   },
-  "model": "opus",
+  "model": "haiku",
   "hooks": {
     "SessionStart": [
       {
@@ -73,7 +73,7 @@
     "claude-code-setup@claude-plugins-official": false,
     "context-engineering@context-engineering-marketplace": false,
     "ui-ux-pro-max@ui-ux-pro-max-skill": false,
-    "caveman@caveman": false,
+    "caveman@caveman": true,
     "code-review@claude-plugins-official": true,
     "obsidian@obsidian-skills": false,
     "qmd@qmd": false,

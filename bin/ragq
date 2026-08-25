@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# ragq — interroge le RAG (Notion→Supabase, bge-m3) depuis le terminal.
+# Embed la question via Ollama, appelle match_rag_documents (vecteur + expansion graphe).
+# Le vecteur et la clé service_role ne quittent jamais ce process.
+#
+# Usage : ragq [-k N] [-s source] [-c] "ma question"
+#   -k N       nombre de résultats seed (défaut 6 ; le graphe peut en ajouter)
+#   -s source  filtre par source (kb|db-projets|concepts|topics|runbooks|stacks|documents)
+#   -c         affiche un extrait du contenu de chaque chunk
+#
+# Config : ~/.config/rag/.env  (SUPABASE_SERVICE_KEY requis)
+set -euo pipefail
+
+CFG="${RAG_ENV:-$HOME/.config/rag/.env}"
+if [ -f "$CFG" ]; then set -a; . "$CFG"; set +a; fi
+
+: "${SUPABASE_URL:=https://murpjwublubvozfisvhp.supabase.co}"
+: "${OLLAMA_URL:=http://localhost:11434}"
+: "${EMBED_MODEL:=bge-m3}"
+: "${SUPABASE_SERVICE_KEY:?manque SUPABASE_SERVICE_KEY dans $CFG (Supabase → Settings → API Keys → service_role → Reveal)}"
+
+command -v jq >/dev/null || { echo "jq requis (brew install jq)"; exit 1; }
+
+K=6; SRC=""; SHOW=0
+while getopts "k:s:c" o; do
+  case "$o" in
+    k) K="$OPTARG" ;;
+    s) SRC="$OPTARG" ;;
+    c) SHOW=1 ;;
+    *) echo "usage: ragq [-k N] [-s source] [-c] \"question\""; exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+Q="$*"
+[ -z "$Q" ] && { echo "usage: ragq [-k N] [-s source] [-c] \"question\""; exit 1; }
+
+# 1. Embedding local (Ollama)
+EMB=$(curl -sf "$OLLAMA_URL/api/embeddings" \
+  -d "$(jq -nc --arg m "$EMBED_MODEL" --arg p "$Q" '{model:$m,prompt:$p}')" \
+  | jq -c '.embedding // empty')
+[ -z "$EMB" ] && { echo "embedding échoué — Ollama up ? modèle $EMBED_MODEL pull ?"; exit 1; }
+
+# 2. Requête vecteur + graphe (Supabase RPC, RLS bypass via service_role)
+FILTER='{}'
+[ -n "$SRC" ] && FILTER=$(jq -nc --arg s "$SRC" '{source:$s}')
+BODY=$(jq -nc --argjson e "$EMB" --argjson k "$K" --argjson f "$FILTER" \
+  '{query_embedding:$e, match_count:$k, filter:$f}')
+
+curl -sf -X POST "$SUPABASE_URL/rest/v1/rpc/match_rag_documents" \
+  -H "apikey: $SUPABASE_SERVICE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$BODY" \
+| jq -r --argjson show "$SHOW" '
+  def line: (((.similarity*1000|floor)/1000|tostring) + "  " + (.metadata.source // "?") + "  " + (.metadata.title // "?"))
+    + (if $show==1 then "\n    " + (((.content // "")|gsub("\\s+";" "))[:400]) else "" end);
+  if (type=="array" and length>0) then
+    ( (.[] | line),
+      "",
+      "SOURCES:",
+      ( unique_by(.metadata.source_url) | sort_by(.metadata.title)[]
+        | "- " + (.metadata.title // "?") + " [" + (.metadata.source // "?") + "]\n  "
+          + (.metadata.source_url // "(pas d URL)") ) )
+  else "aucun résultat" end'

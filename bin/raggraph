@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+# raggraph — visualise le graphe RAG (rag_pages / rag_page_edges) en HTML interactif (vis-network).
+# Récupère nœuds+arêtes depuis Supabase (clé service_role, ~/.config/rag/.env), génère un HTML autonome, l'ouvre.
+# Usage: raggraph [-o fichier.html] [--no-open]
+import os, sys, json, html, subprocess, urllib.request, urllib.parse
+
+CFG = os.environ.get("RAG_ENV", os.path.expanduser("~/.config/rag/.env"))
+env = {}
+if os.path.isfile(CFG):
+    for line in open(CFG):
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            env[k.strip()] = v.strip()
+URL = env.get("SUPABASE_URL", "https://murpjwublubvozfisvhp.supabase.co")
+KEY = env.get("SUPABASE_SERVICE_KEY", "")
+if not KEY:
+    sys.exit("manque SUPABASE_SERVICE_KEY dans " + CFG)
+
+OUT = "/tmp/raggraph.html"
+DO_OPEN = True
+args = sys.argv[1:]
+i = 0
+while i < len(args):
+    if args[i] == "-o": OUT = args[i+1]; i += 2
+    elif args[i] == "--no-open": DO_OPEN = False; i += 1
+    else: i += 1
+
+def fetch(table, select):
+    rows, offset = [], 0
+    while True:
+        q = urllib.parse.urlencode({"select": select, "limit": 1000, "offset": offset})
+        req = urllib.request.Request(f"{URL}/rest/v1/{table}?{q}",
+            headers={"apikey": KEY, "Authorization": "Bearer " + KEY})
+        batch = json.load(urllib.request.urlopen(req))
+        rows += batch
+        if len(batch) < 1000: break
+        offset += 1000
+    return rows
+
+pages = fetch("rag_pages", "page_id,title,category")
+edges = fetch("rag_page_edges", "source_page_id,target_page_id,type")
+
+def norm(x): return (x or "").replace("-", "").lower()
+
+# Couleurs par catégorie/type
+COLORS = {
+    "📁 Projet": "#8b5cf6", "🧩 Feature": "#a855f7", "✅ Tâche": "#c084fc", "🎯 Initiative": "#6d28d9",
+    "Concept": "#10b981", "Définition": "#34d399", "📝 Procédure": "#f59e0b", "🚨 Runbook": "#ef4444",
+    "🔁 Checklist": "#fbbf24", "🛠️ Troubleshooting": "#a78bfa",
+}
+def color(cat): return COLORS.get(cat or "", "#64748b")
+
+nodes = {}
+for p in pages:
+    nid = norm(p["page_id"])
+    nodes[nid] = {"id": nid, "label": (p.get("title") or "?")[:40],
+                  "group": p.get("category") or "?", "color": color(p.get("category")),
+                  "value": 1}
+vis_edges = []
+for e in edges:
+    s, t = norm(e["source_page_id"]), norm(e["target_page_id"])
+    for x in (s, t):
+        if x not in nodes:
+            nodes[x] = {"id": x, "label": "(" + x[:6] + ")", "group": "externe", "color": "#334155", "value": 1}
+    nodes[s]["value"] += 1; nodes[t]["value"] += 1
+    vis_edges.append({"from": s, "to": t})
+
+data = {"nodes": list(nodes.values()), "edges": vis_edges}
+doc = """<!doctype html><html><head><meta charset="utf-8"><title>RAG Graph</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>html,body{margin:0;height:100%;background:#0f172a;color:#e2e8f0;font-family:system-ui}
+#bar{position:fixed;top:0;left:0;right:0;padding:8px 12px;background:#1e293b;z-index:2}
+#net{position:fixed;top:40px;bottom:0;left:0;right:0}
+input{padding:4px 8px;border-radius:4px;border:1px solid #475569;background:#0f172a;color:#e2e8f0}</style>
+</head><body>
+<div id="bar">RAG Graph — __N__ nœuds / __E__ arêtes &nbsp; <input id="q" placeholder="rechercher un titre…" oninput="find()"></div>
+<div id="net"></div>
+<script>
+const data = __DATA__;
+const nodes = new vis.DataSet(data.nodes), edges = new vis.DataSet(data.edges);
+const net = new vis.Network(document.getElementById('net'), {nodes,edges}, {
+  nodes:{shape:'dot',scaling:{min:4,max:40},font:{color:'#e2e8f0',size:11}},
+  edges:{color:{color:'#334155',highlight:'#38bdf8'},width:0.4,smooth:false},
+  physics:{barnesHut:{gravitationalConstant:-8000,springLength:120,springConstant:0.02},stabilization:{iterations:200}},
+  interaction:{hover:true,tooltipDelay:120}
+});
+function find(){const v=document.getElementById('q').value.toLowerCase();if(!v)return;
+  const hit=data.nodes.find(n=>n.label.toLowerCase().includes(v));
+  if(hit){net.focus(hit.id,{scale:1.2,animation:true});net.selectNodes([hit.id]);}}
+</script></body></html>"""
+doc = doc.replace("__DATA__", json.dumps(data)).replace("__N__", str(len(nodes))).replace("__E__", str(len(vis_edges)))
+open(OUT, "w").write(doc)
+print(f"graphe: {len(nodes)} nœuds, {len(vis_edges)} arêtes → {OUT}")
+if DO_OPEN:
+    subprocess.run(["open", OUT])
