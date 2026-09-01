@@ -44,7 +44,7 @@ alphabétique de leur intitulé.
 ## Exemples
 
 ```powershell
-& "$B\New-Tache.ps1" -Projet "Support-Mail-Assistant" `
+& "$B\New-Tache\New-Tache.ps1" -Projet "Support-Mail-Assistant" `
     -Feature "Client Graph API" -Code B1 -Nom "listSupportMessages" `
     -Description "Lecture des mails de l'inbox support via Graph API." -Commit
 ```
@@ -53,7 +53,7 @@ alphabétique de leur intitulé.
 
 | Message | Cause |
 |---|---|
-| `Feature introuvable : …` | Le dossier n'existe pas sous `Related/`. La créer avec [New-Feature.ps1](New-Feature.README.md). |
+| `Feature introuvable : …` | Le dossier n'existe pas sous `Related/`. La créer avec [New-Feature.ps1](../New-Feature/README.md). |
 | `Existe déjà : …` | Ce code et ce nom sont déjà pris. |
 | `les caractères \ / : * ? " < > \| sont interdits` | La vérification porte sur `<Code> - <Nom>` assemblé. |
 

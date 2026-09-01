@@ -48,9 +48,9 @@ détail.
 ## Exemples
 
 ```powershell
-& "$B\New-Ticket.ps1" -Titre "Besoin d'un poste Qualité" -Numero 3826
+& "$B\New-Ticket\New-Ticket.ps1" -Titre "Besoin d'un poste Qualité" -Numero 3826
 
-& "$B\New-Ticket.ps1" -Titre "Imprimante hors ligne" -Numero 3901 `
+& "$B\New-Ticket\New-Ticket.ps1" -Titre "Imprimante hors ligne" -Numero 3901 `
     -Statut 'À faire' -Priorite Haute `
     -Demandeur "audrey.berthereau" -Service Production -Commit
 ```
@@ -60,7 +60,7 @@ détail.
 | Message | Cause |
 |---|---|
 | `Existe déjà : …` | Un ticket porte ce titre et ce numéro. Le script n'écrase jamais. |
-| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](README.md). `Résolu`, `À traiter`, `En attente` ne sont pas reconnus. |
+| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](../README.md). `Résolu`, `À traiter`, `En attente` ne sont pas reconnus. |
 | `les caractères \ / : * ? " < > \| sont interdits` | Le titre sert de nom de fichier, donc d'identifiant de carte. |
 | `Vault introuvable` | Définir `PHYTS_VAULT`, ou vérifier `~/Documents/PHYTS`. |
 

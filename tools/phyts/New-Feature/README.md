@@ -41,7 +41,7 @@ créer la note à la main sans marqueur, avec `parent: "<Nom du projet>"`.
 ## Exemples
 
 ```powershell
-& "$B\New-Feature.ps1" -Projet "Audit Sauvegardes" `
+& "$B\New-Feature\New-Feature.ps1" -Projet "Audit Sauvegardes" `
     -Nom "Inventaire des jobs" `
     -Description "Lister les jobs de sauvegarde existants." -Commit
 ```
@@ -50,9 +50,9 @@ créer la note à la main sans marqueur, avec `parent: "<Nom du projet>"`.
 
 | Message | Cause |
 |---|---|
-| `Projet introuvable : …` | Le dossier n'existe pas sous `PROJETS/`. Le créer avec [New-Projet.ps1](New-Projet.README.md). |
+| `Projet introuvable : …` | Le dossier n'existe pas sous `PROJETS/`. Le créer avec [New-Projet.ps1](../New-Projet/README.md). |
 | `Existe déjà : …` | Une Feature porte ce nom dans ce projet. |
-| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](README.md). |
+| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](../README.md). |
 
 ## Après
 

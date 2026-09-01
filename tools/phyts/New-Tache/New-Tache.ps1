@@ -23,7 +23,7 @@ param(
   [switch]$Commit
 )
 
-. (Join-Path $PSScriptRoot '_phyts.ps1')
+. (Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) '_phyts') '_phyts.ps1')
 
 Assert-Valeur $Statut   $STATUTS   'Statut'
 Assert-Valeur $Priorite $PRIORITES 'Priorité'

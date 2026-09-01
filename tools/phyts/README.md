@@ -13,13 +13,13 @@ d'une note déjà correctement formée.
 
 | Script | Crée | Doc |
 |---|---|---|
-| `New-Ticket.ps1` | `TICKETS/<Titre> (<n°>).md` + son dossier de pièces (`README.md`, `Reply.md`) | [New-Ticket.README.md](New-Ticket.README.md) |
-| `New-Projet.ps1` | `PROJETS/<Nom>/` : note Projet, `.kanban-board.json`, `Related/` | [New-Projet.README.md](New-Projet.README.md) |
-| `New-Feature.ps1` | `PROJETS/<Projet>/Related/<Feature>/` : note Feature et son board | [New-Feature.README.md](New-Feature.README.md) |
-| `New-Tache.ps1` | `PROJETS/<Projet>/Related/<Feature>/<Code> - <Nom>.md` | [New-Tache.README.md](New-Tache.README.md) |
+| `New-Ticket.ps1` | `TICKETS/<Titre> (<n°>).md` + son dossier de pièces (`README.md`, `Reply.md`) | [New-Ticket/README.md](New-Ticket/README.md) |
+| `New-Projet.ps1` | `PROJETS/<Nom>/` : note Projet, `.kanban-board.json`, `Related/` | [New-Projet/README.md](New-Projet/README.md) |
+| `New-Feature.ps1` | `PROJETS/<Projet>/Related/<Feature>/` : note Feature et son board | [New-Feature/README.md](New-Feature/README.md) |
+| `New-Tache.ps1` | `PROJETS/<Projet>/Related/<Feature>/<Code> - <Nom>.md` | [New-Tache/README.md](New-Tache/README.md) |
 
-`_phyts.ps1` porte les briques communes et ne s'exécute pas seul — voir
-[_phyts.README.md](_phyts.README.md). Chaque script a son README attenant :
+`_phyts/_phyts.ps1` porte les briques communes et ne s'exécute pas seul — voir
+[_phyts/README.md](_phyts/README.md). Chaque script a son README attenant :
 paramètres, fichiers produits, erreurs possibles et la règle du board qu'il
 applique.
 
@@ -28,12 +28,12 @@ applique.
 ```powershell
 $B = "$HOME\Documents\TOOLS\AI-WORKSPACE\tools\phyts"
 
-& "$B\New-Ticket.ps1" -Titre "Imprimante hors ligne" -Numero 3901 `
+& "$B\New-Ticket\New-Ticket.ps1" -Titre "Imprimante hors ligne" -Numero 3901 `
     -Priorite Haute -Demandeur "audrey.berthereau" -Service Production
 
-& "$B\New-Projet.ps1"  -Nom "Audit Sauvegardes" -Description "Couverture des sauvegardes serveurs." -Git
-& "$B\New-Feature.ps1" -Projet "Audit Sauvegardes" -Nom "Inventaire des jobs" -Description "Lister les jobs existants."
-& "$B\New-Tache.ps1"   -Projet "Audit Sauvegardes" -Feature "Inventaire des jobs" `
+& "$B\New-Projet\New-Projet.ps1"  -Nom "Audit Sauvegardes" -Description "Couverture des sauvegardes serveurs." -Git
+& "$B\New-Feature\New-Feature.ps1" -Projet "Audit Sauvegardes" -Nom "Inventaire des jobs" -Description "Lister les jobs existants."
+& "$B\New-Tache\New-Tache.ps1"   -Projet "Audit Sauvegardes" -Feature "Inventaire des jobs" `
     -Code A1 -Nom "Export Veeam" -Description "Exporter la liste des jobs."
 ```
 

@@ -22,7 +22,7 @@ param(
   [switch]$Commit
 )
 
-. (Join-Path $PSScriptRoot '_phyts.ps1')
+. (Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) '_phyts') '_phyts.ps1')
 
 Assert-Valeur $Statut   $STATUTS   'Statut'
 Assert-Valeur $Priorite $PRIORITES 'Priorité'
@@ -43,6 +43,6 @@ $board = "{`n  ""name"": ""$Nom"",`n  ""description"": ""$Description""`n}"
 Write-Note (Join-Path $dossier '.kanban-board.json') "$board`n"
 
 Show-Cree @((Join-Path $dossier "$Nom.md"), (Join-Path $dossier '.kanban-board.json'))
-Write-Host "Ajouter les tâches : .\New-Tache.ps1 -Projet '$Projet' -Feature '$Nom' -Code A1 -Nom '<tâche>' -Description '<...>'"
+Write-Host "Ajouter les tâches : ..\New-Tache\New-Tache.ps1 -Projet '$Projet' -Feature '$Nom' -Code A1 -Nom '<tâche>' -Description '<...>'"
 
 if ($Commit) { Invoke-Commit $racine "feat($Projet): feature $Nom" }

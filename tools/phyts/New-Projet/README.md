@@ -42,7 +42,7 @@ indépendant, et on commite depuis son dossier.
 ## Exemples
 
 ```powershell
-& "$B\New-Projet.ps1" -Nom "Audit Sauvegardes" `
+& "$B\New-Projet\New-Projet.ps1" -Nom "Audit Sauvegardes" `
     -Description "Vérifier la couverture des sauvegardes serveurs." `
     -Priorite Haute -Git -Commit
 ```
@@ -52,12 +52,12 @@ indépendant, et on commite depuis son dossier.
 | Message | Cause |
 |---|---|
 | `Existe déjà : …` | Un projet porte ce nom. Le script n'écrase jamais. |
-| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](README.md). |
+| `Statut « … » hors vocabulaire` | Voir la liste dans [README.md](../README.md). |
 | `les caractères \ / : * ? " < > \| sont interdits` | Le nom sert de nom de dossier et de fichier. |
 
 ## Après
 
-Ajouter les Features avec [New-Feature.ps1](New-Feature.README.md), puis les
-tâches avec [New-Tache.ps1](New-Tache.README.md). Le script pose la structure ;
+Ajouter les Features avec [New-Feature.ps1](../New-Feature/README.md), puis les
+tâches avec [New-Tache.ps1](../New-Tache/README.md). Le script pose la structure ;
 le brief et le découpage demandent du jugement — c'est le rôle de la skill
 `planning-vault-project`, qui part alors d'une note déjà bien formée.
