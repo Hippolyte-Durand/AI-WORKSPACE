@@ -1,6 +1,6 @@
 # New-Ticket.ps1
 
-Crée un ticket helpdesk à partir du gabarit `TEMPLATES/Template_Ticket/`.
+Crée un ticket helpdesk à partir du gabarit `TEMPLATES/Ticket-Template/`.
 
 ## Paramètres
 
@@ -27,7 +27,7 @@ TICKETS/
 Le frontmatter porte `type: Ticket`, le statut, la priorité, `date_debut` au
 jour de création, et `demandeur`/`service` quand ils sont passés.
 
-Les sections du corps sont lues dans `TEMPLATES/Template_Ticket/Incident.md` à
+Les sections du corps sont lues dans `TEMPLATES/Ticket-Template/Incident.md` à
 chaque exécution : modifier le gabarit change les tickets suivants, sans
 toucher au script. Si le gabarit est absent, une copie de secours intégrée
 prend le relais.

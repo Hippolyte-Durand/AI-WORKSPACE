@@ -30,12 +30,6 @@ Racine : `~/Documents/PHYTS`. Quatre foyers, chacun son git propre :
   `powershell/`, `terraform/`, `audit/`, `secrets/` (jamais commité en clair).
 
 ## Règles de travail
-1. **Une règle d'infra modifiée porte le n° du ticket qui l'a motivée.** La trace
-   remonte du script au demandeur, sinon personne ne sait pourquoi c'est là.
-2. **Un ticket résolu deux fois devient un runbook** dans `WIKI-KB/Procédures & RunBooks/`.
-   La deuxième occurrence est le déclencheur, pas la première.
-3. **Rien en prod sans validation Stéphane** — AD, réseau, M365, accès. Proposer, pas appliquer.
-4. **`secrets/` ne sort jamais du poste.** Pas dans un ticket, pas dans un prompt,
-   pas dans une note. Référencer l'emplacement, jamais la valeur.
-5. **Écrire pour l'utilisateur final**, pas pour l'informaticien : `Reply.md` se lit
-   par quelqu'un qui ne connaît ni le terme technique ni l'architecture.
+Voir `PHYTS/CLAUDE.md` (racine du vault) — seul texte source, chargé
+automatiquement par le harness pour tout ce qui vit sous `PHYTS/`, y compris
+les sous-dépôts (`PROJETS/`, `TICKETS/`, …). Pas de copie ici.

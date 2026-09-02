@@ -8,7 +8,9 @@ Conventions de portabilité partagées par **tous les projets** (vault Obsidian,
 
 **Instructions** : fichier **`AGENTS.md`** (standard neutre). Claude lit `CLAUDE.md` → l'importer via `@AGENTS.md`. Jamais de doctrine dans un format proprio.
 
-**Tools** : scripts portables (`.py`) dans `tools/`, appelés par **chemin absolu** — pas verrouillés à un CLI. MCP seulement pour un vrai tool typé cross-session (sinon YAGNI).
+**Tools** : scripts portables (`.py`, `.ps1`) dans `tools/`, appelés par **chemin absolu** — pas verrouillés à un CLI. MCP seulement pour un vrai tool typé cross-session (sinon YAGNI).
+
+Rangement `tools/<area>/<Script>/<Script>.ext` + `README.md` à côté — même `<area>` que `skills/<area>/`, un dossier par script. Un script n'existe dans `tools/` que quand du code réutilisable est réellement écrit pour cette area ; une area sans script n'a pas de dossier `tools/<area>/` vide.
 
 **MCP** : config canonique unique (`ai-workspace/config/mcp/servers.json`), répliquée par CLI.
 
