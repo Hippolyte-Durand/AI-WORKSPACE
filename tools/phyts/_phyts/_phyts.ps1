@@ -5,8 +5,19 @@ $ErrorActionPreference = 'Stop'
 
 # Vocabulaire reconnu par KANBAN-PHYTS. Une valeur hors liste n'efface pas la
 # carte, elle atterrit en Backlog — donc invisible là où on l'attend.
-$script:STATUTS  = @('Backlog', 'À faire', 'En cours', 'Bloqué', 'Revue', 'Terminé')
+$script:STATUTS  = @('Backlog', 'À faire', 'En Cours', 'Bloqué', 'Revue', 'Terminé')
 $script:PRIORITES = @('Critique', 'Haute', 'Moyenne', 'Basse')
+
+# Nom de dossier dérivé d'un titre : minuscules, tirets, sans accent. Sert au
+# dossier d'une Feature (qui reprend le slug de sa branche Git), jamais au nom
+# de fichier de la note — celui-là reste le titre exact, c'est l'identifiant
+# de la carte (PROJETS/CLAUDE.MD).
+function Get-Slug($texte) {
+  $sansAccent = $texte.Normalize([Text.NormalizationForm]::FormD) `
+    -replace '\p{Mn}', ''
+  $slug = $sansAccent.ToLowerInvariant() -replace '[^a-z0-9]+', '-'
+  return $slug.Trim('-')
+}
 
 function Get-Vault {
   if ($env:PHYTS_VAULT) { $r = $env:PHYTS_VAULT }
@@ -40,23 +51,30 @@ function Write-Note($chemin, $contenu) {
 }
 
 function New-Frontmatter {
-  param($Type, $Statut, $Priorite, $Parent = '', $DateDebut = '', $Extra = @{})
+  param($Type, $Statut, $Priorite, $Epic = '', $Parent = '', $DateDebut = '', $Extra = @{}, $AVerifier = $null)
 
   $lignes = @(
     '---'
     "type: $Type"
     "statut: $Statut"
     "priorite: $Priorite"
-    "date_debut: $DateDebut"
-    'date_fin:'
-    'date_echeance:'
   )
+  if ($Epic) { $lignes += "epic: $Epic" } else { $lignes += 'epic:' }
+  foreach ($k in $Extra.Keys) { $lignes += "$k`: $($Extra[$k])" }
+  if ($DateDebut) { $lignes += "date_debut: $DateDebut" } else { $lignes += 'date_debut:' }
+  $lignes += 'date_fin:'
+  $lignes += 'date_echeance:'
   # Nom nu, jamais de [[wikilink]] : le board compare `parent` à l'identifiant
   # d'une carte par égalité stricte, et un lien entre crochets ne matche rien.
   if ($Parent) { $lignes += "parent: ""$Parent""" } else { $lignes += 'parent:' }
-  foreach ($k in $Extra.Keys) { $lignes += "$k`: $($Extra[$k])" }
   $lignes += 'documentation:'
   $lignes += 'runbook:'
+  # Champ Ticket uniquement (TICKETS/README.md) — absent du schéma PROJETS,
+  # donc rendu seulement si explicitement fourni par l'appelant.
+  if ($null -ne $AVerifier) {
+    $items = @($AVerifier | ForEach-Object { '"' + ($_ -replace '"', '\"') + '"' }) -join ', '
+    $lignes += "a_verifier: [$items]"
+  }
   $lignes += '---'
   return ($lignes -join "`n")
 }

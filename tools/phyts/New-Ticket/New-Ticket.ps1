@@ -18,8 +18,10 @@ tâche de ce dossier — sans carte parente pour l'afficher, il reste invisible.
 param(
   [Parameter(Mandatory)][string]$Titre,
   [Parameter(Mandatory)][string]$Numero,
-  [string]$Statut = 'En cours',
+  [string]$Statut = 'À faire',
   [string]$Priorite = 'Moyenne',
+  [string]$Categorie = 'Demande',
+  [string]$SousCategorie = '',
   [string]$Demandeur = '',
   [string]$Service = '',
   [switch]$Commit
@@ -27,12 +29,13 @@ param(
 
 . (Join-Path (Join-Path (Split-Path $PSScriptRoot -Parent) '_phyts') '_phyts.ps1')
 
-Assert-Valeur $Statut   $STATUTS   'Statut'
-Assert-Valeur $Priorite $PRIORITES 'Priorité'
+Assert-Valeur $Statut     $STATUTS         'Statut'
+Assert-Valeur $Priorite   $PRIORITES       'Priorité'
+Assert-Valeur $Categorie  @('Incident', 'Demande') 'Catégorie'
 
 $vault   = Get-Vault
 $tickets = Join-Path $vault 'TICKETS'
-$gabarit = Join-Path $vault 'TEMPLATES\Template_Ticket'
+$gabarit = Join-Path $vault 'TEMPLATES\Ticket-Template'
 
 $nom = "$Titre ($Numero)"
 Assert-NomFichier $nom
@@ -57,12 +60,13 @@ Actions appliquées. Une règle d'infra modifiée porte l'identifiant de ce tick
 '@
 }
 
-$extra = @{}
+$extra = @{ categorie = $Categorie }
+if ($SousCategorie) { $extra['sous_categorie'] = $SousCategorie } else { $extra['sous_categorie'] = '' }
 if ($Demandeur) { $extra['demandeur'] = $Demandeur }
 if ($Service)   { $extra['service']   = $Service }
 
-$fm = New-Frontmatter -Type 'Ticket' -Statut $Statut -Priorite $Priorite `
-                      -DateDebut (Get-Date -Format 'yyyy-MM-dd') -Extra $extra
+$fm = New-Frontmatter -Type 'Ticket' -Statut $Statut -Priorite $Priorite -Epic 'Helpdesk' `
+                      -DateDebut (Get-Date -Format 'yyyy-MM-dd') -Extra $extra -AVerifier @()
 
 Write-Note $note "$fm`n`n# $nom`n`n$corps`n"
 

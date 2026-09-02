@@ -32,10 +32,15 @@ $vault   = Get-Vault
 $racine  = Join-Path $vault "PROJETS\$Projet"
 if (-not (Test-Path $racine)) { throw "Projet introuvable : $racine" }
 
-$dossier = Join-Path $racine "Related\$Nom"
+# Le dossier d'une Feature déroge au nom exact : il porte le slug de sa
+# branche Git (feat/<slug>), pas le titre complet — voir PROJETS/CLAUDE.MD.
+# La note $Nom.md à l'intérieur garde elle le titre exact : c'est elle
+# l'identifiant de la carte.
+$slug    = Get-Slug $Nom
+$dossier = Join-Path $racine "Features\$slug"
 if (Test-Path $dossier) { throw "Existe déjà : $dossier" }
 
-$fm = New-Frontmatter -Type 'Feature' -Statut $Statut -Priorite $Priorite
+$fm = New-Frontmatter -Type 'Feature' -Statut $Statut -Priorite $Priorite -Epic $Projet
 
 Write-Note (Join-Path $dossier "$Nom.md") "$fm`n`n# $Nom`n`n$Description`n"
 

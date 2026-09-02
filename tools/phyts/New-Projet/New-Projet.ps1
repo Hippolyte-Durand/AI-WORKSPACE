@@ -19,6 +19,7 @@ param(
   [Parameter(Mandatory)][string]$Description,
   [string]$Statut = 'À faire',
   [string]$Priorite = 'Moyenne',
+  [string]$Epic = '',
   [switch]$Git,
   [switch]$Commit
 )
@@ -33,7 +34,7 @@ $vault   = Get-Vault
 $dossier = Join-Path $vault "PROJETS\$Nom"
 if (Test-Path $dossier) { throw "Existe déjà : $dossier" }
 
-$fm = New-Frontmatter -Type 'Projet' -Statut $Statut -Priorite $Priorite `
+$fm = New-Frontmatter -Type 'Projet' -Statut $Statut -Priorite $Priorite -Epic $Epic `
                       -DateDebut (Get-Date -Format 'yyyy-MM-dd')
 
 $corps = @"
@@ -61,9 +62,9 @@ Write-Note (Join-Path $dossier "$Nom.md") "$fm`n`n# $Nom`n`n$corps`n"
 $board = "{`n  ""name"": ""$Nom"",`n  ""description"": ""$Description""`n}"
 Write-Note (Join-Path $dossier '.kanban-board.json') "$board`n"
 
-New-Item -ItemType Directory -Path (Join-Path $dossier 'Related') -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $dossier 'Features') -Force | Out-Null
 
-Show-Cree @((Join-Path $dossier "$Nom.md"), (Join-Path $dossier '.kanban-board.json'), (Join-Path $dossier 'Related'))
+Show-Cree @((Join-Path $dossier "$Nom.md"), (Join-Path $dossier '.kanban-board.json'), (Join-Path $dossier 'Features'))
 
 # Le board ne lit qu'une ref git : hors dépôt, un projet n'apparaît nulle part.
 if ($Git) {

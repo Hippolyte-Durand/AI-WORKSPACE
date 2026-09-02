@@ -30,8 +30,9 @@ Assert-Valeur $Priorite $PRIORITES 'Priorité'
 
 $vault   = Get-Vault
 $racine  = Join-Path $vault "PROJETS\$Projet"
-$dossier = Join-Path $racine "Related\$Feature"
-if (-not (Test-Path $dossier)) { throw "Feature introuvable : $dossier" }
+$slug    = Get-Slug $Feature
+$dossier = Join-Path $racine "Features\$slug\Taches"
+if (-not (Test-Path $dossier)) { throw "Feature introuvable : $dossier (dossier attendu : Features\$slug)" }
 
 $fichier = "$Code - $Nom"
 Assert-NomFichier $fichier
