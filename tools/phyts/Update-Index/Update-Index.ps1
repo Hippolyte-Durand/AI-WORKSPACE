@@ -49,6 +49,18 @@ function Get-Objet($chemin) {
   return $ligne
 }
 
+# Ecrit $table entre les marqueurs INDEX de $readme. Erreur si les
+# marqueurs n'existent pas — mieux vaut echouer que deviner ou l'inserer.
+function Set-IndexSection($readme, $table) {
+  $contenu = ([IO.File]::ReadAllText($readme)) -replace "`r`n", "`n"
+  if ($contenu -notmatch '(?s)<!-- INDEX:START -->\n.*?<!-- INDEX:END -->') {
+    throw "Marqueurs <!-- INDEX:START/END --> introuvables dans $readme"
+  }
+  $nouveau = $contenu -replace '(?s)<!-- INDEX:START -->\n.*?<!-- INDEX:END -->', "<!-- INDEX:START -->`n$table`n<!-- INDEX:END -->"
+  [IO.File]::WriteAllText($readme, $nouveau, (New-Object Text.UTF8Encoding $false))
+  Write-Host "Index régénéré : $readme" -ForegroundColor Green
+}
+
 $vault = Get-Vault
 
 if ($Cible -eq 'Tickets') {
@@ -62,7 +74,8 @@ if ($Cible -eq 'Tickets') {
     $objet = Get-Objet $note.FullName
     $lignes += "| ``$($_.Name)`` | $($fm['statut']) | $($fm['priorite']) | $($fm['categorie']) | $objet |"
   }
-  $table = $lignes -join "`n"
+  Set-IndexSection $readme ($lignes -join "`n")
+  return
 }
 else {
   $racine = Join-Path $vault 'PROJETS'
@@ -91,6 +104,8 @@ else {
 
     $lignesTop += "| ``$projetNom`` | $($fm['statut']) | $($fm['priorite']) | $objet | $decoupage | ``$depot`` |"
 
+    $entete = @('| Code | Feature | Tâches | Statut | Objet |', '|---|---|---|---|---|')
+    $tableFeatures = 'Aucune Feature pour l''instant.'
     if ($features.Count -gt 0) {
       $rangees = foreach ($f in $features) {
         $fNote = Get-ChildItem $f.FullName -File -Filter '*.md' | Select-Object -First 1
@@ -106,22 +121,20 @@ else {
         }
         [PSCustomObject]@{ Code = $code; Feature = $fNote.BaseName; Taches = $nbT; Statut = $fFm['statut']; Objet = $fObjet }
       }
-      $sousLignes = @("### $projetNom — boards Feature", '', '| Code | Feature | Tâches | Statut | Objet |', '|---|---|---|---|---|')
-      foreach ($r in ($rangees | Sort-Object Code)) {
-        $sousLignes += "| $($r.Code) | $($r.Feature) | $($r.Taches) | $($r.Statut) | $($r.Objet) |"
+      $lignesFeatures = foreach ($r in ($rangees | Sort-Object Code)) {
+        "| $($r.Code) | $($r.Feature) | $($r.Taches) | $($r.Statut) | $($r.Objet) |"
       }
-      $sousTables += ($sousLignes -join "`n")
+      $tableFeatures = ($entete + $lignesFeatures) -join "`n"
+      $sousTables += (@("### $projetNom — boards Feature", '') + $entete + $lignesFeatures) -join "`n"
     }
+
+    # Index local, auto-contenu — utile meme si ce depot est clone seul,
+    # hors du vault (voir Set-IndexSection dans son propre README.md).
+    $readmeLocal = Join-Path $_.FullName 'README.md'
+    if (Test-Path $readmeLocal) { Set-IndexSection $readmeLocal $tableFeatures }
   }
 
   $table = ($lignesTop -join "`n")
   if ($sousTables.Count -gt 0) { $table += "`n`n" + ($sousTables -join "`n`n") }
+  Set-IndexSection $readme $table
 }
-
-$contenu = ([IO.File]::ReadAllText($readme)) -replace "`r`n", "`n"
-if ($contenu -notmatch '(?s)<!-- INDEX:START -->\n.*?<!-- INDEX:END -->') {
-  throw "Marqueurs <!-- INDEX:START/END --> introuvables dans $readme"
-}
-$nouveau = $contenu -replace '(?s)<!-- INDEX:START -->\n.*?<!-- INDEX:END -->', "<!-- INDEX:START -->`n$table`n<!-- INDEX:END -->"
-[IO.File]::WriteAllText($readme, $nouveau, (New-Object Text.UTF8Encoding $false))
-Write-Host "Index régénéré : $readme" -ForegroundColor Green

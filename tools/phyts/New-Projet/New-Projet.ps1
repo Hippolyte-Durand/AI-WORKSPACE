@@ -64,7 +64,53 @@ Write-Note (Join-Path $dossier '.kanban-board.json') "$board`n"
 
 New-Item -ItemType Directory -Path (Join-Path $dossier 'Features') -Force | Out-Null
 
-Show-Cree @((Join-Path $dossier "$Nom.md"), (Join-Path $dossier '.kanban-board.json'), (Join-Path $dossier 'Features'))
+# Ce projet est un depot git independant : la remontee CLAUDE.md/AGENTS.md
+# s'arrete a sa propre racine, elle ne voit jamais PROJETS/README.md du
+# vault au-dessus. Trio README (source) + CLAUDE.md/AGENTS.md (pointeurs)
+# necessaire ici, pas juste au niveau du vault.
+$noteUrl = [uri]::EscapeDataString("$Nom.md") -replace '%2F', '/'
+$readme = @"
+---
+tags:
+  - L1
+---
+
+# $Nom
+
+Dépôt du projet PHYT'S *$Nom* — dépôt git indépendant du vault ``PHYTS``
+(voir ``PROJETS/README.md`` du vault pour le schéma frontmatter et les
+règles générales ; hors du vault, ce fichier n'est pas accessible, d'où ce
+README autonome).
+
+Brief et plan complets : [``$Nom.md``]($noteUrl). Statut suivi par
+[KANBAN-PHYTS](../../TOOLS/KANBAN-PHYTS/README.md) sur la ref ``main``.
+
+## Features
+
+<!-- INDEX:START -->
+Aucune Feature pour l'instant.
+<!-- INDEX:END -->
+"@
+Write-Note (Join-Path $dossier 'README.md') $readme
+
+Write-Note (Join-Path $dossier 'CLAUDE.md') @'
+Ce dossier a des règles. Lire [README.md](README.md) — c'est la source,
+ce fichier n'existe que pour forcer Claude Code à le charger et router
+correctement dans ce dossier ; ne jamais y recopier le contenu.
+'@
+
+Write-Note (Join-Path $dossier 'AGENTS.md') @'
+Ce dossier a des règles. Lire [README.md](README.md) — c'est la source,
+ce fichier n'existe que pour forcer les outils qui chargent `AGENTS.md`
+(Kimi Code, Antigravity...) à le lire et router correctement dans ce
+dossier ; ne jamais y recopier le contenu.
+'@
+
+Show-Cree @(
+  (Join-Path $dossier "$Nom.md"), (Join-Path $dossier '.kanban-board.json'),
+  (Join-Path $dossier 'Features'), (Join-Path $dossier 'README.md'),
+  (Join-Path $dossier 'CLAUDE.md'), (Join-Path $dossier 'AGENTS.md')
+)
 
 # Le board ne lit qu'une ref git : hors dépôt, un projet n'apparaît nulle part.
 if ($Git) {
