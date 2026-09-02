@@ -22,8 +22,12 @@ Un correctif local sur un poste isolé reste à la main du support.
 Le n° vient de **GLPI**. **Pas de numéro fourni → demander, ne pas inventer** :
 un ticket sans n° ne se recroise avec rien. Les consignes de saisie GLPI (intitulé
 court cherchable, recopie du mail, tâche pour ce qui a été fait, solution pour
-clore) sont dans `WIKI-KB/Procédures & RunBooks/GLPI - Convention.md` — GLPI reste
-le registre officiel, le dossier ici en est l'instruction technique.
+clore) sont dans `WIKI-KB/Documentations/GLPI - Convention de saisie.md` — GLPI
+reste le registre officiel, le dossier ici en est l'instruction technique.
+
+Ticket de type "préparation / configuration de poste" : voir aussi
+`WIKI-KB/Documentations/GLPI - Clôture préparation de poste.md` (format de
+sortie attendu) et le skill `cloture-preparation-poste` pour la clôture.
 
 ```
 <Titre court> (<n°>)/
@@ -41,16 +45,26 @@ le registre officiel, le dossier ici en est l'instruction technique.
    supposé fait perdre le déplacement suivant.
 3. **Chercher l'antériorité avant de diagnostiquer** : `WIKI-KB/Procédures & RunBooks/`
    puis les `TICKETS/` clos. Un incident déjà résolu se rejoue, il ne se
-   re-diagnostique pas.
-4. **Écrire `Incident.md`** — quatre sections, vides plutôt que meublées :
+   re-diagnostique pas. Toute procédure trouvée qui s'applique **s'attache
+   tout de suite** au champ `runbook:` de l'`Incident.md` (étape suivante) —
+   pas seulement citée dans `## Résolution`. Plusieurs procédures qui
+   s'appliquent : lister leurs chemins, séparés par une virgule.
+4. **Écrire `Incident.md`** — schéma identique à celui des notes `PROJETS/`
+   (voir `PROJETS/CLAUDE.MD`), avec `type: Ticket` et `epic: Helpdesk`
+   fixes :
 
    ```markdown
    ---
-   statut: En cours       # Backlog | À faire | En cours | Bloqué | Revue | Terminé
+   type: Ticket
+   statut: À faire        # Backlog | À faire | En Cours | Bloqué | Revue | Terminé
    priorite: Moyenne      # Critique | Haute | Moyenne | Basse
-   demandeur:
-   service:
-   ouvert_le:
+   epic: Helpdesk
+   date_debut:
+   date_fin:
+   date_echeance:
+   parent:
+   documentation:
+   runbook:                # chemin(s) trouvés à l'étape 3, sinon vide
    ---
 
    # Incident
