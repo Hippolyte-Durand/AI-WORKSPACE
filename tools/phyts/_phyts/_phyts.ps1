@@ -11,7 +11,7 @@ $script:PRIORITES = @('Critique', 'Haute', 'Moyenne', 'Basse')
 # Nom de dossier dérivé d'un titre : minuscules, tirets, sans accent. Sert au
 # dossier d'une Feature (qui reprend le slug de sa branche Git), jamais au nom
 # de fichier de la note — celui-là reste le titre exact, c'est l'identifiant
-# de la carte (PROJETS/CLAUDE.MD).
+# de la carte (PROJETS/README.md).
 function Get-Slug($texte) {
   $sansAccent = $texte.Normalize([Text.NormalizationForm]::FormD) `
     -replace '\p{Mn}', ''

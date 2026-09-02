@@ -50,7 +50,7 @@ sortie attendu) et le skill `cloture-preparation-poste` pour la clôture.
    pas seulement citée dans `## Résolution`. Plusieurs procédures qui
    s'appliquent : lister leurs chemins, séparés par une virgule.
 4. **Écrire `Incident.md`** — schéma identique à celui des notes `PROJETS/`
-   (voir `PROJETS/CLAUDE.MD`), avec `type: Ticket` et `epic: Helpdesk`
+   (voir `PROJETS/README.md`), avec `type: Ticket` et `epic: Helpdesk`
    fixes :
 
    ```markdown

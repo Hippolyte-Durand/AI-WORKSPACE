@@ -33,7 +33,7 @@ $racine  = Join-Path $vault "PROJETS\$Projet"
 if (-not (Test-Path $racine)) { throw "Projet introuvable : $racine" }
 
 # Le dossier d'une Feature déroge au nom exact : il porte le slug de sa
-# branche Git (feat/<slug>), pas le titre complet — voir PROJETS/CLAUDE.MD.
+# branche Git (feat/<slug>), pas le titre complet — voir PROJETS/README.md.
 # La note $Nom.md à l'intérieur garde elle le titre exact : c'est elle
 # l'identifiant de la carte.
 $slug    = Get-Slug $Nom
